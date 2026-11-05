@@ -2,59 +2,56 @@ import './App.css'
 import Header from './components/Header'
 import Hero from './components/Hero'
 import DramaCard from './components/DramaCard'
-import {useEffect, useState} from 'react'
+import { useEffect, useState } from 'react'
 import SearchBar from './components/SearchBar'
-
-const dramas = [
-  {
-    id: 1,
-    title: 'Pousando no Amor',
-    year: 2019,
-    genre: 'Romance',
-    rating: 9.0,
-    poster: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYru70PhfyxImxuQ67GjPKP6NGHCz5JcZKi7UCN-ycJw&s'
-  },
-  {
-    id: 2,
-    title: 'Pretendente Surpresa',
-    year: 2022,
-    genre: 'Comédia romântica',
-    rating: 8.3,
-    poster: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmMurd_sOrohPlMFqipzzDARB5yUxCz2B6KbyG3wqjNg&s=10'
-  },
-  {
-    id: 3,
-    title: 'Vinte e Cinco, Vinte e Um',
-    year: 2022,
-    genre: 'Romance',
-    rating: 8.6,
-    poster: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjXqLoKUdQttafskZQoXF2XECzPhbCvDIR5kgG88xwbA&s=10'
-  },
-  {
-    id: 4,
-    title: '100 Dias de Mentira',
-    year: 2026,
-    genre: 'Romance',
-    rating: 9.5,
-    poster: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-JL13G7l4SclkwWmPImQUbnpgQfXs9Zqbzplhbum_KA&s=10'
-  },
-]
-
 
 function App() {
   // 1- Estados
+  const [dramas, setDramas] = useState([])
+  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedGenre, setSelectedGenre] = useState('Todos')
   const [favoriteIds, setFavoriteIds] = useState(() => {
-     try {
-    const savedFavorites = localStorage.getItem('k-match-favorites')
-
-    return savedFavorites ? JSON.parse(savedFavorites) : []
-  } catch {
-    return []
-  }
-})
+    try {
+      const savedFavorites = localStorage.getItem('k-match-favorites')
+      return savedFavorites ? JSON.parse(savedFavorites) : []
+    } catch {
+      return []
+    }
+  })
   const [sortBy, setSortBy] = useState('rating')
+
+  // Buscar dados da API 
+  useEffect(() => {
+    async function carregarDramas() {
+      try {
+        setLoading(true)
+
+        const response = await fetch('/api/dramas')
+        const data = await response.json()
+
+        const listaDeFilmes = data.results || data
+
+        // Mapeia o padrão do TMDB para as propriedades que o seu <DramaCard /> já usa
+        const dramasFormatados = listaDeFilmes.map((item) => ({
+          id: item.id,
+          title: item.name || item.title, // Séries usam 'name', filmes usam 'title'
+          year: item.first_air_date ? new Date(item.first_air_date).getFullYear() : (item.release_date ? new Date(item.release_date).getFullYear() : 'N/A'),
+          genre: 'Coreano', // Padrão inicial simplificado
+          rating: item.vote_average ? parseFloat(item.vote_average.toFixed(1)) : 0,
+          poster: item.poster_path ? `https://tmdb.org{item.poster_path}` : 'https://placehold.co'
+        }))
+
+        setDramas(dramasFormatados)
+      } catch (error) {
+        console.error("Erro ao buscar doramas da API:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    carregarDramas()
+  }, [])
 
   useEffect(() => {
     localStorage.setItem(
@@ -63,29 +60,27 @@ function App() {
     )
   }, [favoriteIds])
   
-  //  2 Função para adicionar e remover favoritos
+  // 2 - Função para adicionar e remover favoritos
   function toggleFavorite(dramaId) {
     setFavoriteIds((currentIds) => {
       if (currentIds.includes(dramaId)) {
         return currentIds.filter((id) => id !== dramaId)
       }
-
-      return [...currentIds, dramaId];
+      return [...currentIds, dramaId]
     })
   }
 
   // 3 - Filtro do catálogo
   const filteredDramas = dramas.filter((drama) => {
-  const matchesTitle = drama.title
-    .toLowerCase()
-    .includes(searchTerm.trim().toLowerCase())
+    const matchesTitle = drama.title
+      .toLowerCase()
+      .includes(searchTerm.trim().toLowerCase())
 
-  const matchesGenre = 
-    selectedGenre === 'Todos' || drama.genre === selectedGenre
+    const matchesGenre = 
+      selectedGenre === 'Todos' || drama.genre === selectedGenre
 
     return matchesTitle && matchesGenre
   })
-
   .sort((a, b) => {
     if (sortBy === 'rating') {
       return b.rating - a.rating
@@ -100,24 +95,23 @@ function App() {
   })
 
   // 4 - Lista de favoritos
-const favoriteDramas = dramas.filter((drama) =>
-  favoriteIds.includes(drama.id)
-)
+  const favoriteDramas = dramas.filter((drama) =>
+    favoriteIds.includes(drama.id)
+  )
 
   return (
     <main>
       <Header />
       <Hero />
       <SearchBar
-      searchTerm={searchTerm}
-      onSearchChange={setSearchTerm}
-      selectedGenre={selectedGenre}
-      onGenreChange={setSelectedGenre}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        selectedGenre={selectedGenre}
+        onGenreChange={setSelectedGenre}
       />
 
       <div className="sort-control">
-        <label htmlFor="sort-dramas">Ordenar por:</label>
-
+        <label htmlFor="sort-drama">Ordenar por:</label>
         <select 
           id="sort-drama"
           value={sortBy}
@@ -132,37 +126,42 @@ const favoriteDramas = dramas.filter((drama) =>
       <section className="drama-section" id="catalago">
         <h2>K-dramas para descobrir</h2>
 
-        <div className="drama-grid">
-          {filteredDramas.map((drama) => (
-            <DramaCard 
-            key={drama.id} 
-            drama={drama}
-            isFavorite={favoriteIds.includes(drama.id)}
-            onToggleFavorite={toggleFavorite}
-            />
-          ))}
+        {loading ? (
+          <p style={{ textAlign: 'center', color: '#fff' }}>Carregando K-dramas dinâmicos do TMDB...</p>
+        ) : (
+          <div className="drama-grid">
+            {filteredDramas.map((drama) => (
+              <DramaCard 
+                key={drama.id} 
+                drama={drama}
+                isFavorite={favoriteIds.includes(drama.id)}
+                onToggleFavorite={toggleFavorite}
+              />
+            ))}
 
-          {filteredDramas.length === 0 && (
-            <p>Nenhum K-drama encontrado.</p>
-          )}
-
-        </div>
+            {filteredDramas.length === 0 && (
+              <p>Nenhum K-drama encontrado.</p>
+            )}
+          </div>
+        )}
       </section>
 
-{/* Lista */}
+      {/* Lista */}
       <section className="drama-section">
         <h2>Minha lista</h2>
 
-        {favoriteDramas.length === 0 ? (
+        {loading ? (
+          <p style={{ textAlign: 'center', color: '#fff' }}>Carregando lista...</p>
+        ) : favoriteDramas.length === 0 ? (
           <p>Você ainda não favoritou nenhum K-drama.</p>
         ) : (
           <div className="drama-grid">
             {favoriteDramas.map((drama) => (
               <DramaCard
-              key={drama.id}
-              drama={drama}
-              isFavorite={true}
-              onToggleFavorite={toggleFavorite}
+                key={drama.id}
+                drama={drama}
+                isFavorite={true}
+                onToggleFavorite={toggleFavorite}
               />
             ))}
           </div>
