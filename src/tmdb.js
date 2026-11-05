@@ -15,4 +15,4 @@ export async function getKdramas({ page = 1, genre } = {}) {
   }
 
   return response.json();
-}
+} 

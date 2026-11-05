@@ -4,6 +4,26 @@ import Hero from './components/Hero'
 import DramaCard from './components/DramaCard'
 import { useEffect, useState } from 'react'
 import SearchBar from './components/SearchBar'
+import { getKdramas } from './tmdb'
+
+
+const genreNames = {
+    10759: 'Ação e aventura',
+    16: 'Animação',
+    35: 'Comédia',
+    80: 'Crime',
+    99: 'Documentário',
+    18: 'Drama',
+    10751: 'Família',
+    10762: 'Infantil',
+    9648: 'Mistério',
+    10764: 'Reality',
+    10765: 'Ficção científica e fantasia',
+    10766: 'Novela',
+    10767: 'Talk show',
+    10768: 'Guerra e política',
+    37: 'Faroeste',
+}
 
 function App() {
   // 1- Estados
@@ -27,19 +47,34 @@ function App() {
       try {
         setLoading(true)
 
-        const response = await fetch('/api/dramas')
-        const data = await response.json()
+        const data = await getKdramas({
+          genre: selectedGenre === "Todos"
+          ? undefined
+          : selectedGenre
+        })
 
         const listaDeFilmes = data.results || data
 
-        // Mapeia o padrão do TMDB para as propriedades que o seu <DramaCard /> já usa
+        // Mapeia o padrão do TMDB para as propriedades que o <DramaCard /> já usa
         const dramasFormatados = listaDeFilmes.map((item) => ({
           id: item.id,
           title: item.name || item.title, // Séries usam 'name', filmes usam 'title'
-          year: item.first_air_date ? new Date(item.first_air_date).getFullYear() : (item.release_date ? new Date(item.release_date).getFullYear() : 'N/A'),
-          genre: 'Coreano', // Padrão inicial simplificado
-          rating: item.vote_average ? parseFloat(item.vote_average.toFixed(1)) : 0,
-          poster: item.poster_path ? `https://tmdb.org{item.poster_path}` : 'https://placehold.co'
+          year: item.first_air_date
+          ? new Date(item.first_air_date).getFullYear()
+          : 'N/A',
+
+          genre: (item.genre_ids || [])
+          .map((id) => genreNames[id])
+          .filter(Boolean)
+          .join(', ') || 'Não informado',
+
+          rating: item.vote_average
+          ? parseFloat(item.vote_average.toFixed(1))
+          : 0,
+
+          poster: item.poster_path
+          ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+          : 'https://placehold.co/500x750',
         }))
 
         setDramas(dramasFormatados)
@@ -51,7 +86,7 @@ function App() {
     }
 
     carregarDramas()
-  }, [])
+  }, [selectedGenre])
 
   useEffect(() => {
     localStorage.setItem(
@@ -76,11 +111,9 @@ function App() {
       .toLowerCase()
       .includes(searchTerm.trim().toLowerCase())
 
-    const matchesGenre = 
-      selectedGenre === 'Todos' || drama.genre === selectedGenre
-
-    return matchesTitle && matchesGenre
+      return matchesTitle
   })
+  
   .sort((a, b) => {
     if (sortBy === 'rating') {
       return b.rating - a.rating
