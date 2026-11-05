@@ -2,9 +2,9 @@ import './App.css'
 import Header from './components/Header'
 import Hero from './components/Hero'
 import DramaCard from './components/DramaCard'
-import { useEffect, useState } from 'react'
+import {useEffect, useState} from 'react'
 import SearchBar from './components/SearchBar'
-import { getKdramas } from './tmdb'
+import {getKdramas} from './tmdb'
 
 
 const genreNames = {
@@ -113,7 +113,7 @@ function App() {
 
       return matchesTitle
   })
-  
+
   .sort((a, b) => {
     if (sortBy === 'rating') {
       return b.rating - a.rating
