@@ -1,16 +1,38 @@
-# React + Vite
+# K-Match 💜
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Uma plataforma web para descobrir, explorar e organizar K-dramas de acordo com suas preferências.
 
-Currently, two official plugins are available:
+O K-Match nasceu como um projeto de aprendizado e desenvolvimento Front-end, com o objetivo de criar uma experiência simples e intuitiva para quem gosta de descobrir novas histórias.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+🔗 **Acesse a aplicação:** https://k-match.vercel.app/
 
-## React Compiler
+## ✨ Funcionalidades
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Busca de K-dramas por título.
+- Filtro por gênero.
+- Ordenação por avaliação.
+- Ordenação por ano de lançamento.
+- Exibição de informações dos dramas.
+- Lista de favoritos.
+- Persistência dos favoritos utilizando LocalStorage.
 
-## Expanding the ESLint configuration
+## 🛠️ Tecnologias utilizadas
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- React
+- JavaScript
+- HTML5
+- CSS3
+- Vite
+- API do TMDB
+
+## 🎯 Objetivo do projeto
+
+Praticar e desenvolver conhecimentos em desenvolvimento Front-end, componentização com React, gerenciamento de estados, consumo de APIs e armazenamento de dados no navegador.
+
+## 👩‍💻 Desenvolvido por
+
+**Emilly Nascimento**
+
+Formada em Análise e Desenvolvimento de Sistemas, com interesse em desenvolvimento Front-end e criação de interfaces web.
+
+[GitHub](https://github.com/Emilly-Dev) · [LinkedIn](https://www.linkedin.com/in/emilly-nascimento-dev/)

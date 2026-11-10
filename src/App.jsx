@@ -31,14 +31,23 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedGenre, setSelectedGenre] = useState('Todos')
-  const [favoriteIds, setFavoriteIds] = useState(() => {
+  const [favoriteDramas, setFavoriteDramas] = useState(() => {
     try {
       const savedFavorites = localStorage.getItem('k-match-favorites')
-      return savedFavorites ? JSON.parse(savedFavorites) : []
+      const parsedFavorites = savedFavorites 
+        ? JSON.parse(savedFavorites) 
+        : []
+
+        return parsedFavorites.filter(
+          (item) => item && typeof item === 'object' && item.id
+        )
+
     } catch {
       return []
     }
   })
+
+  const favoriteIds = favoriteDramas.map((drama) => drama.id)
   const [sortBy, setSortBy] = useState('rating')
 
   // Buscar dados da API 
@@ -91,17 +100,34 @@ function App() {
   useEffect(() => {
     localStorage.setItem(
       'k-match-favorites',
-      JSON.stringify(favoriteIds)
+      JSON.stringify(favoriteDramas)
     )
-  }, [favoriteIds])
+  }, [favoriteDramas])
   
   // 2 - Função para adicionar e remover favoritos
   function toggleFavorite(dramaId) {
-    setFavoriteIds((currentIds) => {
-      if (currentIds.includes(dramaId)) {
-        return currentIds.filter((id) => id !== dramaId)
+    setFavoriteDramas((currentFavorites) => {
+      
+      const alreadyFavorite = currentFavorites.some(
+          (drama) => drama.id === dramaId
+      )
+
+      if (alreadyFavorite) {
+        return currentFavorites.filter(
+          (drama) => drama.id !==dramaId
+        )
       }
-      return [...currentIds, dramaId]
+
+      const dramaToAdd = dramas.find(
+        (drama) => drama.id === dramaId
+      )
+
+      if (!dramaToAdd) {
+        return currentFavorites
+      }
+
+      return [...currentFavorites, dramaToAdd]
+
     })
   }
 
@@ -127,10 +153,7 @@ function App() {
     return 0
   })
 
-  // 4 - Lista de favoritos
-  const favoriteDramas = dramas.filter((drama) =>
-    favoriteIds.includes(drama.id)
-  )
+
 
   return (
     <main>
